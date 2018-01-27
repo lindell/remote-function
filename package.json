@@ -1,5 +1,5 @@
 {
-    "name": "trpc",
+    "name": "smooth-rpc",
     "version": "0.1.0",
     "description": "Make function calls remotely in an intuitive way.",
     "main": "src/index.js",
@@ -9,9 +9,9 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/lindell/trpc.git"
+        "url": "git+https://github.com/lindell/smooth-rpc.git"
     },
     "author": "Johan Lindell",
-    "homepage": "https://github.com/lindell/trpc",
+    "homepage": "https://github.com/lindell/smooth-rpc",
     "license": "MIT"
 }

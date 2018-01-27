@@ -1,6 +1,6 @@
-# Transparent Remote Procedure Call
+# Smooth RPC
 
-TRPC is a library for making remote procedure calls in an intuitive way. It has no dependencies and works over http.
+Smooth RPC is a library for making remote procedure calls in an intuitive way. It has no dependencies and works over http.
 
 ## Examples
 
@@ -9,8 +9,8 @@ TRPC is a library for making remote procedure calls in an intuitive way. It has 
 Initiate a server, then just define your function on the server object.
 
 ```javascript
-const trcp = require('./index.js');
-const server = trcp.createServer();
+const srpc = require('smooth-rpc');
+const server = srpc.createServer();
 
 server.divide = (arg1, arg2) => {
     if (arg2 === 0) {
@@ -25,8 +25,8 @@ server.divide = (arg1, arg2) => {
 Define where the server is located when creating a client. Then you can just call the function that is defined at the server and you get a promise that returns what the server function will return.
 
 ```javascript
-const trcp = require('./index.js');
-const remote = trcp.createClient({ host: '127.0.0.1' });
+const srcp = require('smooth-rpc');
+const remote = srcp.createClient({ host: '127.0.0.1' });
 
 remote
     .divide(12, 3)
