@@ -1,0 +1,17 @@
+{
+    "name": "trpc",
+    "version": "0.1.0",
+    "description": "Make function calls remotely in an intuitive way.",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/lindell/trpc.git"
+    },
+    "author": "Johan Lindell",
+    "homepage": "https://github.com/lindell/trpc",
+    "license": "MIT"
+}
