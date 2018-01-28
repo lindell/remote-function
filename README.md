@@ -1,6 +1,12 @@
 # Smooth RPC
 
-Smooth RPC is a library for making remote procedure calls in an intuitive way. It has no dependencies and works over http.
+Smooth RPC is a library for making remote procedure calls in an intuitive way. Just declare functions on the server element and call them from the client element, thats it. It has no dependencies and works by utilzing _Proxies_ that was intruduced with ES6.
+
+## Install
+
+```
+npm install smooth-rpc
+```
 
 ## Examples
 
