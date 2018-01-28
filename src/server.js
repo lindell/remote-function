@@ -53,7 +53,6 @@ class Server {
     errorToObject(error) {
         let object = {};
         Object.getOwnPropertyNames(error).forEach(property => {
-            console.log(this.includeStack);
             if (property === 'stack' && !this.options.includeStack) {
                 return;
             }
@@ -71,6 +70,12 @@ class Server {
 const handler = {
     set: function(server, name, handler) {
         server.regsiterHandler(name, handler);
+    },
+
+    get: function(server, name) {
+        if (name == 'close') {
+            return server.server.close.bind(server.server);
+        }
     },
 };
 
