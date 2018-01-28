@@ -63,7 +63,7 @@ try {
 
 #### Client
 
-| Option | Default     | Description                        |
-| ------ | ----------- | ---------------------------------- |
-| `host` | `"0.0.0.0"` | The host that the server listen on |
-| `port` | `1337`      | The port that the server listen on |
+| Option | Default       | Description                        |
+| ------ | ------------- | ---------------------------------- |
+| `host` | `"127.0.0.1"` | The host that the server listen on |
+| `port` | `6356`        | The port that the server listen on |
