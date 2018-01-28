@@ -21,7 +21,7 @@ class Client {
             },
         };
 
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             let request = http.request(options, resp => {
                 let data = '';
 
@@ -33,6 +33,15 @@ class Client {
                     const parsedData = JSON.parse(data);
                     resolve(this.finishRequest(parsedData));
                 });
+            });
+
+            request.on('error', e => {
+                reject(e);
+            });
+
+            request.on('timeout', () => {
+                reject(new Error('Request timeout'));
+                request.abort();
             });
 
             request.write(JSON.stringify(args));
