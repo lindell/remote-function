@@ -8,18 +8,20 @@ const defaultOptions = {
 class Client {
     constructor(userOptions) {
         this.options = { ...defaultOptions, ...(userOptions || {}) };
+        this.currentID = 0;
     }
 
-    send(name, args) {
+    send(name, params) {
         const options = {
             hostname: this.options.host,
             port: this.options.port,
-            path: '/' + name,
+            path: '/',
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
         };
+        const id = this.currentID++;
 
         return new Promise((resolve, reject) => {
             let request = http.request(options, resp => {
@@ -44,7 +46,14 @@ class Client {
                 request.abort();
             });
 
-            request.write(JSON.stringify(args));
+            request.write(
+                JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: name,
+                    params,
+                    id,
+                }),
+            );
             request.end();
         });
     }

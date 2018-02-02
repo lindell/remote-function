@@ -1,4 +1,5 @@
-var http = require('http');
+const http = require('http');
+const { RPCError } = require('./errors.js');
 
 const defaultOptions = {
     host: '0.0.0.0',
@@ -21,27 +22,57 @@ class Server {
             body += chunk;
         });
         req.on('end', () => {
-            req.body = JSON.parse(body);
-            this.finishRequest(req, res);
+            req.body = body;
+            this.completeRequest(req)
+                .then(result => {
+                    res.end(JSON.stringify({ jsonrpc: '2.0', result, id: req.body.id }));
+                })
+                .catch(error => {
+                    res.end(
+                        JSON.stringify({
+                            jsonrpc: '2.0',
+                            error: { code: error.id || -32000, message: error.message },
+                            id: req.body.id ? req.body.id : null,
+                        }),
+                    );
+                });
         });
     }
 
-    finishRequest(req, res) {
-        const functionName = req.url.split('/', 2)[1];
-        const handler = this.handlers[functionName];
+    completeRequest(req) {
+        try {
+            return Promise.resolve(this.finishRequest(req));
+        } catch (e) {
+            return Promise.reject(e);
+        }
+    }
 
-        this.handleFunctionCall(handler, req.body)
-            .then(result => {
-                res.write(JSON.stringify({ result }));
-                res.end();
-            })
-            .catch(error => {
-                res.write(JSON.stringify({ error: this.errorToObject(error) }));
-                res.end();
-            });
+    finishRequest(req) {
+        try {
+            req.body = JSON.parse(req.body);
+        } catch (e) {
+            throw new RPCError(-32700, 'Parse error');
+        }
+
+        if (!validateRequest(req.body)) {
+            throw new RPCError(-32600, 'Invalid Request');
+        }
+
+        const functionName = req.body.method;
+        const id = req.body.id;
+        const handler = this.handlers[functionName];
+        if (typeof handler !== 'function') {
+            throw new RPCError(-32601, 'Method not found');
+        }
+
+        return this.handleFunctionCall(handler, req.body.params);
     }
 
     handleFunctionCall(handler, params) {
+        if (!Array.isArray(params)) {
+            params = [params];
+        }
+
         try {
             let handlerResult = handler(...params);
             return Promise.resolve(handlerResult);
@@ -65,6 +96,10 @@ class Server {
     regsiterHandler(name, handler) {
         this.handlers[name] = handler;
     }
+}
+
+function validateRequest(data) {
+    return typeof data.method === 'string' && data.jsonrpc === '2.0' && typeof data.params === 'object';
 }
 
 const handler = {
