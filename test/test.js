@@ -21,7 +21,7 @@ describe('No server', function() {
     });
 
     it('Should start the server', function() {
-        server = srpc.createServer();
+        server = srpc.createServer({ includeStack: false });
     });
 });
 

@@ -35,7 +35,11 @@ class Server {
                     res.end(
                         JSON.stringify({
                             jsonrpc: '2.0',
-                            error: { code: error.id || -32000, message: error.message },
+                            error: {
+                                code: error.rpcErrorID || -32000,
+                                message: error.message,
+                                data: this.getErrorData(error),
+                            },
                             id: req.body.id ? req.body.id : null,
                         })
                     );
@@ -95,15 +99,24 @@ class Server {
         }
     }
 
-    errorToObject(error) {
+    getErrorData(error) {
         let object = {};
         Object.getOwnPropertyNames(error).forEach(property => {
+            // Message and error id is already included outside of the data object
+            if (property === 'message' || property === 'rpcErrorID') {
+                return;
+            }
+
             if (property === 'stack' && !this.options.includeStack) {
                 return;
             }
 
             object[property] = error[property];
         });
+
+        if (Object.keys(object).length === 0) {
+            return;
+        }
         return object;
     }
 
@@ -128,8 +141,8 @@ const handler = {
     },
 };
 
-function createServer() {
-    const server = new Server();
+function createServer(options) {
+    const server = new Server(options);
     return new Proxy(server, handler);
 }
 

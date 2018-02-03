@@ -1,7 +1,7 @@
 class RPCError extends Error {
     constructor(id, message) {
         super(message);
-        this.id = id;
+        this.rpcErrorID = id;
         Error.captureStackTrace(this, RPCError);
     }
 }

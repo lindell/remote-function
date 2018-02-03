@@ -62,8 +62,10 @@ class Client {
         if (data.result) {
             return data.result;
         } else if (data.error) {
-            let error = new Error();
-            Object.assign(error, data.error);
+            let error = new Error(data.error.message);
+            if (data.error.data) {
+                Object.assign(error, data.error.data);
+            }
             return Promise.reject(error);
         }
     }
