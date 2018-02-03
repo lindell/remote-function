@@ -64,6 +64,15 @@ describe('JSON RPC Server test', function() {
         );
     });
 
+    it('rpc notification call', function(done) {
+        server.update = () => {
+            return new Promise(resolve => {
+                setTimeout(resolve, 3000);
+            });
+        };
+        testAPI({ jsonrpc: '2.0', method: 'update', params: [1, 2, 3, 4, 5] }, '', done);
+    });
+
     it('rpc call with invalid Request object', function(done) {
         server.subtract = ({ subtrahend, minuend }) => minuend - subtrahend;
 

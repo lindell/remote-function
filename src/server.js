@@ -25,7 +25,11 @@ class Server {
             req.body = body;
             this.completeRequest(req)
                 .then(result => {
-                    res.end(JSON.stringify({ jsonrpc: '2.0', result, id: req.body.id }));
+                    // If notification, don't return anything
+                    if (result === null) {
+                        res.end();
+                    }
+                    res.end(JSON.stringify({ jsonrpc: '2.0', result: result.result, id: result.id }));
                 })
                 .catch(error => {
                     res.end(
@@ -58,17 +62,27 @@ class Server {
             throw new RPCError(-32600, 'Invalid Request');
         }
 
-        const functionName = req.body.method;
-        const id = req.body.id;
+        return this.handleRPCObject(req.body);
+    }
+
+    handleRPCObject(rpcObject) {
+        const functionName = rpcObject.method;
+        const id = rpcObject.id;
         const handler = this.handlers[functionName];
         if (typeof handler !== 'function') {
             throw new RPCError(-32601, 'Method not found');
         }
 
-        return this.handleFunctionCall(handler, req.body.params);
+        // Notification
+        if (typeof id !== 'number') {
+            this.callHandler(handler, rpcObject.params).catch(() => {});
+            return Promise.resolve(null);
+        }
+
+        return this.callHandler(handler, rpcObject.params).then(result => ({ id, result }));
     }
 
-    handleFunctionCall(handler, params) {
+    callHandler(handler, params) {
         if (!Array.isArray(params)) {
             params = [params];
         }
