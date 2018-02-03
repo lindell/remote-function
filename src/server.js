@@ -37,7 +37,7 @@ class Server {
                             jsonrpc: '2.0',
                             error: { code: error.id || -32000, message: error.message },
                             id: req.body.id ? req.body.id : null,
-                        }),
+                        })
                     );
                 });
         });

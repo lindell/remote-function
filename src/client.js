@@ -52,7 +52,7 @@ class Client {
                     method: name,
                     params,
                     id,
-                }),
+                })
             );
             request.end();
         });

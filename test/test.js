@@ -50,7 +50,7 @@ describe('JSON RPC Server test', function() {
         testAPI(
             { jsonrpc: '2.0', method: 'subtract', params: [42, 23], id: 1 },
             { jsonrpc: '2.0', result: 19, id: 1 },
-            done,
+            done
         );
     });
 
@@ -60,7 +60,7 @@ describe('JSON RPC Server test', function() {
         testAPI(
             { jsonrpc: '2.0', method: 'subtract', params: { subtrahend: 23, minuend: 42 }, id: 3 },
             { jsonrpc: '2.0', result: 19, id: 3 },
-            done,
+            done
         );
     });
 
@@ -79,7 +79,7 @@ describe('JSON RPC Server test', function() {
         testAPI(
             { jsonrpc: '2.0', method: 1, params: 'bar' },
             { jsonrpc: '2.0', error: { code: -32600, message: 'Invalid Request' }, id: null },
-            done,
+            done
         );
     });
 
@@ -91,7 +91,7 @@ describe('JSON RPC Server test', function() {
         testAPI(
             { jsonrpc: '2.0', method: 'errorThrower', params: [], id: 123 },
             { jsonrpc: '2.0', error: { code: -32000, message: 'test' }, id: 123 },
-            done,
+            done
         );
     });
 });
