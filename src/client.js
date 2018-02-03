@@ -7,7 +7,7 @@ const defaultOptions = {
 
 class Client {
     constructor(userOptions) {
-        this.options = { ...defaultOptions, ...(userOptions || {}) };
+        this.options = Object.assign({}, defaultOptions, userOptions || {});
         this.currentID = 0;
     }
 

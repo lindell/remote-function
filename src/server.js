@@ -9,7 +9,7 @@ const defaultOptions = {
 
 class Server {
     constructor(userOptions) {
-        this.options = { ...defaultOptions, ...(userOptions || {}) };
+        this.options = Object.assign({}, defaultOptions, userOptions || {});
 
         this.server = http.createServer(this.handleRequest.bind(this));
         this.server.listen(this.options.port, this.options.host);
