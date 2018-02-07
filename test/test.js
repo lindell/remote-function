@@ -94,6 +94,40 @@ describe('JSON RPC Server test', function() {
             done
         );
     });
+
+    it('rpc batch call', function(done) {
+        server.subtract = (arg1, arg2) => arg1 - arg2;
+
+        testAPI(
+            [
+                { jsonrpc: '2.0', method: 'subtract', params: [2, 1], id: '1' },
+                { jsonrpc: '2.0', method: 'subtract', params: [4, 2], id: '2' },
+            ],
+            [{ jsonrpc: '2.0', result: 1, id: '1' }, { jsonrpc: '2.0', result: 2, id: '2' }],
+            done
+        );
+    });
+
+    it('rpc batch call', function(done) {
+        server.subtract = (arg1, arg2) => arg1 - arg2;
+
+        testAPI(
+            [
+                { jsonrpc: '2.0', method: 'subtract', params: [5, 3], id: '1' },
+                { jsonrpc: '2.0', method: 'subtract', params: [7] },
+                { jsonrpc: '2.0', method: 'subtract', params: [42, 23], id: 2 },
+                { foo: 'boo' },
+                { jsonrpc: '2.0', method: 'notexist', params: [42, 23], id: 3 },
+            ],
+            [
+                { jsonrpc: '2.0', result: 2, id: '1' },
+                { jsonrpc: '2.0', result: 19, id: 2 },
+                { jsonrpc: '2.0', error: { code: -32600, message: 'Invalid Request' }, id: null },
+                { jsonrpc: '2.0', error: { code: -32601, message: 'Method not found' }, id: 3 },
+            ],
+            done
+        );
+    });
 });
 
 describe('Normal use', function() {

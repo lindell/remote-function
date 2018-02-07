@@ -29,6 +29,26 @@ class Server {
                     if (result === null) {
                         res.end();
                     }
+                    if (Array.isArray(result)) {
+                        res.end(
+                            JSON.stringify(
+                                result.filter(result => result != null).map(result => {
+                                    if (result instanceof Error) {
+                                        return {
+                                            jsonrpc: '2.0',
+                                            error: {
+                                                code: result.rpcErrorID || -32000,
+                                                message: result.message,
+                                                data: this.getErrorData(result),
+                                            },
+                                            id: result.rpcRequestID ? result.rpcRequestID : null,
+                                        };
+                                    }
+                                    return { jsonrpc: '2.0', result: result.result, id: result.id };
+                                })
+                            )
+                        );
+                    }
                     res.end(JSON.stringify({ jsonrpc: '2.0', result: result.result, id: result.id }));
                 })
                 .catch(error => {
@@ -62,23 +82,29 @@ class Server {
             throw new RPCError(-32700, 'Parse error');
         }
 
-        if (!validateRequest(req.body)) {
-            throw new RPCError(-32600, 'Invalid Request');
+        if (Array.isArray(req.body)) {
+            return Promise.all(
+                req.body.map(this.handleRPCObject.bind(this)).map(promise => promise.catch(error => error))
+            );
         }
 
         return this.handleRPCObject(req.body);
     }
 
     handleRPCObject(rpcObject) {
+        if (!validateRequest(rpcObject)) {
+            return Promise.reject(new RPCError(-32600, 'Invalid Request'));
+        }
+
         const functionName = rpcObject.method;
         const id = rpcObject.id;
         const handler = this.handlers[functionName];
         if (typeof handler !== 'function') {
-            throw new RPCError(-32601, 'Method not found');
+            return Promise.reject(new RPCError(-32601, 'Method not found', id));
         }
 
         // Notification
-        if (typeof id !== 'number') {
+        if (id == null) {
             this.callHandler(handler, rpcObject.params).catch(() => {});
             return Promise.resolve(null);
         }
@@ -103,7 +129,7 @@ class Server {
         let object = {};
         Object.getOwnPropertyNames(error).forEach(property => {
             // Message and error id is already included outside of the data object
-            if (property === 'message' || property === 'rpcErrorID') {
+            if (property === 'message' || property === 'rpcErrorID' || property === 'rpcRequestID') {
                 return;
             }
 
@@ -111,7 +137,9 @@ class Server {
                 return;
             }
 
-            object[property] = error[property];
+            if (error[property] !== undefined) {
+                object[property] = error[property];
+            }
         });
 
         if (Object.keys(object).length === 0) {
@@ -126,6 +154,9 @@ class Server {
 }
 
 function validateRequest(data) {
+    if (Array.isArray(data)) {
+        return true;
+    }
     return typeof data.method === 'string' && data.jsonrpc === '2.0' && typeof data.params === 'object';
 }
 
