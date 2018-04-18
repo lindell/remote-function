@@ -1,0 +1,8 @@
+{
+    "extends": "airbnb-base",
+    "rules": {
+        "indent": ["error", 4],
+        "class-methods-use-this": 0,
+        "no-use-before-define": 0
+    }
+}

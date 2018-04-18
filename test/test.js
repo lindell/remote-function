@@ -11,16 +11,15 @@ const srpc = require('../src');
 let client;
 let server;
 
-before(function() {
+before(() => {
     client = srpc.createClient();
 });
 
-describe('No server', function() {
-    it('Should reject when the sever is not responding', function() {
-        return client.multiply(3, 4).should.rejectedWith('ECONNREFUSED');
-    });
+describe('No server', () => {
+    it('Should reject when the sever is not responding', () =>
+        client.multiply(3, 4).should.rejectedWith('ECONNREFUSED'));
 
-    it('Should start the server', function() {
+    it('Should start the server', () => {
         server = srpc.createServer({ includeStack: false });
     });
 });
@@ -33,110 +32,159 @@ const request = axios.create({
 function testAPI(input, output, done) {
     request
         .post('/', input)
-        .then(data => {
+        .then((data) => {
             if (deepEqual(data.data, output)) {
                 done();
             } else {
-                done(new Error(JSON.stringify(data.data) + '!=' + JSON.stringify(output)));
+                done(new Error(`${JSON.stringify(data.data)}!=${JSON.stringify(output)}`));
             }
         })
         .catch(response => done(new Error(response)));
 }
 
-describe('JSON RPC Server test', function() {
-    it('rpc call with positional parameters', function(done) {
+describe('JSON RPC Server test', () => {
+    it('rpc call with positional parameters', (done) => {
         server.subtract = (arg1, arg2) => arg1 - arg2;
 
         testAPI(
-            { jsonrpc: '2.0', method: 'subtract', params: [42, 23], id: 1 },
+            {
+                jsonrpc: '2.0',
+                method: 'subtract',
+                params: [42, 23],
+                id: 1,
+            },
             { jsonrpc: '2.0', result: 19, id: 1 },
-            done
+            done,
         );
     });
 
-    it('rpc call with named parameters', function(done) {
+    it('rpc call with named parameters', (done) => {
         server.subtract = ({ subtrahend, minuend }) => minuend - subtrahend;
 
         testAPI(
-            { jsonrpc: '2.0', method: 'subtract', params: { subtrahend: 23, minuend: 42 }, id: 3 },
+            {
+                jsonrpc: '2.0',
+                method: 'subtract',
+                params: { subtrahend: 23, minuend: 42 },
+                id: 3,
+            },
             { jsonrpc: '2.0', result: 19, id: 3 },
-            done
+            done,
         );
     });
 
-    it('rpc notification call', function(done) {
-        server.update = () => {
-            return new Promise(resolve => {
+    it('rpc notification call', (done) => {
+        server.update = () =>
+            new Promise((resolve) => {
                 setTimeout(resolve, 3000);
             });
-        };
         testAPI({ jsonrpc: '2.0', method: 'update', params: [1, 2, 3, 4, 5] }, '', done);
     });
 
-    it('rpc call with invalid Request object', function(done) {
+    it('rpc call with invalid Request object', (done) => {
         server.subtract = ({ subtrahend, minuend }) => minuend - subtrahend;
 
         testAPI(
             { jsonrpc: '2.0', method: 1, params: 'bar' },
             { jsonrpc: '2.0', error: { code: -32600, message: 'Invalid Request' }, id: null },
-            done
+            done,
         );
     });
 
-    it('rpc call with error in handler function', function(done) {
+    it('rpc call with error in handler function', (done) => {
         server.errorThrower = () => {
             throw new Error('test');
         };
 
         testAPI(
-            { jsonrpc: '2.0', method: 'errorThrower', params: [], id: 123 },
+            {
+                jsonrpc: '2.0',
+                method: 'errorThrower',
+                params: [],
+                id: 123,
+            },
             { jsonrpc: '2.0', error: { code: -32000, message: 'test' }, id: 123 },
-            done
+            done,
         );
     });
 
-    it('rpc batch call', function(done) {
+    it('rpc batch call', (done) => {
         server.subtract = (arg1, arg2) => arg1 - arg2;
 
         testAPI(
             [
-                { jsonrpc: '2.0', method: 'subtract', params: [2, 1], id: '1' },
-                { jsonrpc: '2.0', method: 'subtract', params: [4, 2], id: '2' },
+                {
+                    jsonrpc: '2.0',
+                    method: 'subtract',
+                    params: [2, 1],
+                    id: '1',
+                },
+                {
+                    jsonrpc: '2.0',
+                    method: 'subtract',
+                    params: [4, 2],
+                    id: '2',
+                },
             ],
             [{ jsonrpc: '2.0', result: 1, id: '1' }, { jsonrpc: '2.0', result: 2, id: '2' }],
-            done
+            done,
         );
     });
 
-    it('rpc batch call', function(done) {
+    it('rpc batch call', (done) => {
         server.subtract = (arg1, arg2) => arg1 - arg2;
+        server.errorThrower = () => {
+            throw new Error('test');
+        };
 
         testAPI(
             [
-                { jsonrpc: '2.0', method: 'subtract', params: [5, 3], id: '1' },
+                {
+                    jsonrpc: '2.0',
+                    method: 'subtract',
+                    params: [5, 3],
+                    id: '1',
+                },
                 { jsonrpc: '2.0', method: 'subtract', params: [7] },
-                { jsonrpc: '2.0', method: 'subtract', params: [42, 23], id: 2 },
+                {
+                    jsonrpc: '2.0',
+                    method: 'subtract',
+                    params: [42, 23],
+                    id: 2,
+                },
                 { foo: 'boo' },
-                { jsonrpc: '2.0', method: 'notexist', params: [42, 23], id: 3 },
+                {
+                    jsonrpc: '2.0',
+                    method: 'notexist',
+                    params: [42, 23],
+                    id: 3,
+                },
+                {
+                    jsonrpc: '2.0',
+                    method: 'errorThrower',
+                    params: [42, 23],
+                    id: 4,
+                },
             ],
             [
                 { jsonrpc: '2.0', result: 2, id: '1' },
                 { jsonrpc: '2.0', result: 19, id: 2 },
                 { jsonrpc: '2.0', error: { code: -32600, message: 'Invalid Request' }, id: null },
                 { jsonrpc: '2.0', error: { code: -32601, message: 'Method not found' }, id: 3 },
+                { jsonrpc: '2.0', error: { code: -32000, message: 'test' }, id: 4 },
             ],
-            done
+            done,
         );
     });
 });
 
-describe('Normal use', function() {
-    it('Should resolve', function() {
+describe('Normal use', () => {
+    it('Should resolve', () => {
         server.multiply = (arg1, arg2) => arg1 * arg2;
         return client.multiply(3, 4).should.eventually.equal(12);
     });
 
-    it('Should reject', function() {
+    it('Should reject', () => {
         server.throwing = () => {
             throw new Error('testing');
         };
@@ -144,26 +192,24 @@ describe('Normal use', function() {
     });
 });
 
-describe('Promise use', function() {
-    it('Should resolve', function() {
-        server.multiplyPromsise = (arg1, arg2) => {
-            return new Promise(resolve => {
+describe('Promise use', () => {
+    it('Should resolve', () => {
+        server.multiplyPromsise = (arg1, arg2) =>
+            new Promise((resolve) => {
                 setTimeout(() => resolve(arg1 * arg2), 10);
             });
-        };
         return client.multiplyPromsise(3, 4).should.eventually.equal(12);
     });
 
-    it('Should reject', function() {
-        server.throwingPromise = (arg1, arg2) => {
-            return new Promise((resolve, reject) => {
+    it('Should reject', () => {
+        server.throwingPromise = (arg1, arg2) =>
+            new Promise((resolve, reject) => {
                 reject(new Error('testing'));
             });
-        };
         return client.throwing().should.rejectedWith(Error);
     });
 });
 
-after(function() {
+after(() => {
     server.close();
 });

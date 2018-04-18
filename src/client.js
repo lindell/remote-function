@@ -21,13 +21,14 @@ class Client {
                 'Content-Type': 'application/json',
             },
         };
-        const id = this.currentID++;
+        const id = this.currentID;
+        this.currentID += 1;
 
         return new Promise((resolve, reject) => {
-            let request = http.request(options, resp => {
+            const request = http.request(options, (resp) => {
                 let data = '';
 
-                resp.on('data', chunk => {
+                resp.on('data', (chunk) => {
                     data += chunk;
                 });
 
@@ -37,7 +38,7 @@ class Client {
                 });
             });
 
-            request.on('error', e => {
+            request.on('error', (e) => {
                 reject(e);
             });
 
@@ -46,14 +47,12 @@ class Client {
                 request.abort();
             });
 
-            request.write(
-                JSON.stringify({
-                    jsonrpc: '2.0',
-                    method: name,
-                    params,
-                    id,
-                })
-            );
+            request.write(JSON.stringify({
+                jsonrpc: '2.0',
+                method: name,
+                params,
+                id,
+            }));
             request.end();
         });
     }
@@ -62,17 +61,18 @@ class Client {
         if (data.result) {
             return data.result;
         } else if (data.error) {
-            let error = new Error(data.error.message);
+            const error = new Error(data.error.message);
             if (data.error.data) {
                 Object.assign(error, data.error.data);
             }
             return Promise.reject(error);
         }
+        throw new Error('Data or Error is not present, this should never happen.');
     }
 }
 
 const handler = {
-    get: function(client, name) {
+    get(client, name) {
         return (...args) => client.send(name, args);
     },
 };
