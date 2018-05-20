@@ -7,4 +7,11 @@ class RPCError extends Error {
     }
 }
 
-module.exports.RPCError = RPCError;
+class TimeoutError extends Error {
+    constructor(message) {
+        super(message);
+        Error.captureStackTrace(this, RPCError);
+    }
+}
+
+module.exports = { RPCError, TimeoutError };

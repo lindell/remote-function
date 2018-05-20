@@ -12,7 +12,7 @@ let client;
 let server;
 
 before(() => {
-    client = srpc.createClient();
+    client = srpc.createClient({ timeout: 500 });
 });
 
 describe('No server', () => {
@@ -202,11 +202,37 @@ describe('Promise use', () => {
     });
 
     it('Should reject', () => {
-        server.throwingPromise = (arg1, arg2) =>
+        server.throwingPromise = () =>
             new Promise((resolve, reject) => {
                 reject(new Error('testing'));
             });
         return client.throwing().should.rejectedWith(Error);
+    });
+});
+
+describe('Errors', () => {
+    it('Should timeout', () => {
+        server.slow = () =>
+            new Promise((resolve) => {
+                setTimeout(() => resolve('test'), 4000);
+            });
+        return client.slow().should.rejectedWith(Error);
+    });
+
+    it('Should return data with error', () => {
+        server.customError = () => {
+            const error = new Error();
+            error.test = 'test';
+            return Promise.reject(error);
+        };
+        return client.customError().then(
+            () => Promise.reject(new Error('Did not reject')),
+            (error) => {
+                if (error.test !== 'test') {
+                    return Promise.reject(new Error('Did not return custom error data'));
+                }
+            },
+        );
     });
 });
 

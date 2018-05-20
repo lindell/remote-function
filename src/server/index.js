@@ -1,5 +1,6 @@
 const http = require('http');
-const { RPCError } = require('../errors.js');
+const { validateRequest } = require('../util');
+const { RPCError } = require('../errors');
 
 const defaultOptions = {
     host: '0.0.0.0',
@@ -23,7 +24,7 @@ class Server {
         });
         req.on('end', () => {
             req.body = body;
-            this.completeRequest(req)
+            this.finishRequest(req)
                 .then(this.answerRequest(res))
                 .catch(this.answerError(res));
         });
@@ -52,24 +53,18 @@ class Server {
         };
     }
 
-    completeRequest(req) {
-        try {
-            return Promise.resolve(this.finishRequest(req));
-        } catch (e) {
-            return Promise.reject(e);
-        }
-    }
-
     finishRequest(req) {
         try {
             req.body = JSON.parse(req.body);
         } catch (e) {
-            throw new RPCError(-32700, 'Parse error');
+            return Promise.reject(new RPCError(-32700, 'Parse error'));
         }
 
         if (Array.isArray(req.body)) {
             return Promise.all(req.body
                 .map(this.handleRPCObject.bind(this))
+                // Since the entire batch request should not fail if one part do,
+                // all failing request is converted to resolved promises
                 .map(promise => promise.catch(error => error)));
         }
 
@@ -81,9 +76,9 @@ class Server {
             return Promise.reject(new RPCError(-32600, 'Invalid Request'));
         }
 
-        const functionName = rpcObject.method;
-        const { id } = rpcObject;
-        const handler = this.handlers[functionName];
+        const { id, method } = rpcObject;
+
+        const handler = this.handlers[method];
         if (typeof handler !== 'function') {
             return Promise.reject(new RPCError(-32601, 'Method not found', id));
         }
@@ -97,7 +92,7 @@ class Server {
         return this.callHandler(handler, rpcObject.params)
             .then(result => ({ id, result }))
             .catch((error) => {
-                error.rpcRequestID = id;
+                error.rpcRequestID = id; // eslint-disable-line no-param-reassign
                 return Promise.reject(error);
             });
     }
@@ -116,6 +111,8 @@ class Server {
         }
     }
 
+    // Gather up all fields that should be included in the "data"
+    // part of the error sent to the client
     getErrorData(error) {
         const object = {};
         Object.getOwnPropertyNames(error).forEach((property) => {
@@ -128,7 +125,8 @@ class Server {
                 return;
             }
 
-            if (property === 'stack' && !this.options.includeStack) {
+            // Don't include the stack if includeStack is set to false
+            if (!this.options.includeStack && property === 'stack') {
                 return;
             }
 
@@ -140,9 +138,11 @@ class Server {
         if (Object.keys(object).length === 0) {
             return undefined;
         }
+
         return object;
     }
 
+    // Convert the data to the format that will be sent backt to the client
     createRPCObject(data) {
         if (data instanceof Error) {
             return {
@@ -161,15 +161,6 @@ class Server {
     regsiterHandler(name, handler) {
         this.handlers[name] = handler;
     }
-}
-
-function validateRequest(data) {
-    if (Array.isArray(data)) {
-        return true;
-    }
-    return (
-        typeof data.method === 'string' && data.jsonrpc === '2.0' && typeof data.params === 'object'
-    );
 }
 
 const handler = {

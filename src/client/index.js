@@ -1,14 +1,16 @@
 const http = require('http');
+const { TimeoutError } = require('../errors');
+const { gererateID } = require('../util');
 
 const defaultOptions = {
     host: '127.0.0.1',
     port: 6356,
+    timeout: 0,
 };
 
 class Client {
     constructor(userOptions) {
         this.options = Object.assign({}, defaultOptions, userOptions || {});
-        this.currentID = 0;
     }
 
     send(name, params) {
@@ -21,8 +23,7 @@ class Client {
                 'Content-Type': 'application/json',
             },
         };
-        const id = this.currentID;
-        this.currentID += 1;
+        const id = gererateID();
 
         return new Promise((resolve, reject) => {
             const request = http.request(options, (resp) => {
@@ -42,10 +43,16 @@ class Client {
                 reject(e);
             });
 
-            request.on('timeout', () => {
-                reject(new Error('Request timeout'));
-                request.abort();
-            });
+            if (this.options.timeout > 0) {
+                request.on('socket', (socket) => {
+                    socket.on('connect', () => {
+                        setTimeout(() => {
+                            reject(new TimeoutError('Request timed out'));
+                            request.abort();
+                        }, this.options.timeout);
+                    });
+                });
+            }
 
             request.write(JSON.stringify({
                 jsonrpc: '2.0',
@@ -67,7 +74,7 @@ class Client {
             }
             return Promise.reject(error);
         }
-        throw new Error('Data or Error is not present, this should never happen.');
+        return Promise.reject(new Error('Data or Error is not present, the server did not send correct information back'));
     }
 }
 
@@ -77,8 +84,8 @@ const handler = {
     },
 };
 
-function createClient() {
-    const client = new Client();
+function createClient(options) {
+    const client = new Client(options);
     return new Proxy(client, handler);
 }
 
