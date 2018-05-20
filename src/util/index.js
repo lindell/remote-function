@@ -8,9 +8,6 @@ function gererateID() {
 }
 
 function validateRequest(data) {
-    if (Array.isArray(data)) {
-        return true;
-    }
     return (
         typeof data.method === 'string' && data.jsonrpc === '2.0' && typeof data.params === 'object'
     );

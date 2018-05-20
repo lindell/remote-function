@@ -280,8 +280,22 @@ describe('Errors', () => {
     });
 });
 
+describe('Other', () => {
+    it('Should be able to retrieve set handlers', () => {
+        server.test = () => 'test';
+        server.test().should.equal('test');
+    });
+
+    it('Should be able to restart server', () => {
+        server.closeServer();
+        server = remoteFunction.createServer();
+        server.add = (a, b) => a + b;
+        client.add(5, 3).should.eventually.equal(8);
+    });
+});
+
 after(() => {
-    server.close();
+    server.closeServer();
     expressServer1.close();
     expressServer2.close();
 });

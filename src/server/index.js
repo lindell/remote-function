@@ -161,6 +161,10 @@ class Server {
     regsiterHandler(name, handler) {
         this.handlers[name] = handler;
     }
+
+    getHandler(name) {
+        return this.handlers[name];
+    }
 }
 
 const handler = {
@@ -169,10 +173,10 @@ const handler = {
     },
 
     get(server, name) {
-        if (name === 'close') {
+        if (name === 'closeServer') {
             return server.server.close.bind(server.server);
         }
-        return undefined;
+        return server.getHandler(name);
     }
 };
 
