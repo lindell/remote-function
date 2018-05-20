@@ -6,6 +6,7 @@
     "scripts": {
         "test": "./node_modules/mocha/bin/mocha",
         "coverage": "node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- -- test/**/*",
+        "coveralls": "node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
         "start": "node server.js"
     },
     "repository": {
@@ -19,6 +20,7 @@
         "axios": "^0.17.1",
         "chai": "^4.1.2",
         "chai-as-promised": "^7.1.1",
+        "coveralls": "^3.0.1",
         "deep-equal": "^1.0.1",
         "eslint": "^4.18.1",
         "eslint-config-airbnb-base": "^12.1.0",
