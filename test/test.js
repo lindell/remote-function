@@ -26,7 +26,7 @@ describe('No server', () => {
 
 const request = axios.create({
     baseURL: 'http://localhost:6356/',
-    timeout: 1000,
+    timeout: 1000
 });
 
 function testAPI(input, output, done) {
@@ -51,10 +51,10 @@ describe('JSON RPC Server test', () => {
                 jsonrpc: '2.0',
                 method: 'subtract',
                 params: [42, 23],
-                id: 1,
+                id: 1
             },
             { jsonrpc: '2.0', result: 19, id: 1 },
-            done,
+            done
         );
     });
 
@@ -66,10 +66,10 @@ describe('JSON RPC Server test', () => {
                 jsonrpc: '2.0',
                 method: 'subtract',
                 params: { subtrahend: 23, minuend: 42 },
-                id: 3,
+                id: 3
             },
             { jsonrpc: '2.0', result: 19, id: 3 },
-            done,
+            done
         );
     });
 
@@ -87,7 +87,7 @@ describe('JSON RPC Server test', () => {
         testAPI(
             { jsonrpc: '2.0', method: 1, params: 'bar' },
             { jsonrpc: '2.0', error: { code: -32600, message: 'Invalid Request' }, id: null },
-            done,
+            done
         );
     });
 
@@ -101,10 +101,10 @@ describe('JSON RPC Server test', () => {
                 jsonrpc: '2.0',
                 method: 'errorThrower',
                 params: [],
-                id: 123,
+                id: 123
             },
             { jsonrpc: '2.0', error: { code: -32000, message: 'test' }, id: 123 },
-            done,
+            done
         );
     });
 
@@ -117,17 +117,17 @@ describe('JSON RPC Server test', () => {
                     jsonrpc: '2.0',
                     method: 'subtract',
                     params: [2, 1],
-                    id: '1',
+                    id: '1'
                 },
                 {
                     jsonrpc: '2.0',
                     method: 'subtract',
                     params: [4, 2],
-                    id: '2',
-                },
+                    id: '2'
+                }
             ],
             [{ jsonrpc: '2.0', result: 1, id: '1' }, { jsonrpc: '2.0', result: 2, id: '2' }],
-            done,
+            done
         );
     });
 
@@ -143,37 +143,37 @@ describe('JSON RPC Server test', () => {
                     jsonrpc: '2.0',
                     method: 'subtract',
                     params: [5, 3],
-                    id: '1',
+                    id: '1'
                 },
                 { jsonrpc: '2.0', method: 'subtract', params: [7] },
                 {
                     jsonrpc: '2.0',
                     method: 'subtract',
                     params: [42, 23],
-                    id: 2,
+                    id: 2
                 },
                 { foo: 'boo' },
                 {
                     jsonrpc: '2.0',
                     method: 'notexist',
                     params: [42, 23],
-                    id: 3,
+                    id: 3
                 },
                 {
                     jsonrpc: '2.0',
                     method: 'errorThrower',
                     params: [42, 23],
-                    id: 4,
-                },
+                    id: 4
+                }
             ],
             [
                 { jsonrpc: '2.0', result: 2, id: '1' },
                 { jsonrpc: '2.0', result: 19, id: 2 },
                 { jsonrpc: '2.0', error: { code: -32600, message: 'Invalid Request' }, id: null },
                 { jsonrpc: '2.0', error: { code: -32601, message: 'Method not found' }, id: 3 },
-                { jsonrpc: '2.0', error: { code: -32000, message: 'test' }, id: 4 },
+                { jsonrpc: '2.0', error: { code: -32000, message: 'test' }, id: 4 }
             ],
-            done,
+            done
         );
     });
 });
@@ -231,7 +231,7 @@ describe('Errors', () => {
                 if (error.test !== 'test') {
                     return Promise.reject(new Error('Did not return custom error data'));
                 }
-            },
+            }
         );
     });
 });

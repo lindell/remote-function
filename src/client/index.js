@@ -5,7 +5,7 @@ const { gererateID } = require('../util');
 const defaultOptions = {
     host: '127.0.0.1',
     port: 6356,
-    timeout: 0,
+    timeout: 0
 };
 
 class Client {
@@ -20,8 +20,8 @@ class Client {
             path: '/',
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-            },
+                'Content-Type': 'application/json'
+            }
         };
         const id = gererateID();
 
@@ -58,7 +58,7 @@ class Client {
                 jsonrpc: '2.0',
                 method: name,
                 params,
-                id,
+                id
             }));
             request.end();
         });
@@ -81,7 +81,7 @@ class Client {
 const handler = {
     get(client, name) {
         return (...args) => client.send(name, args);
-    },
+    }
 };
 
 function createClient(options) {

@@ -5,7 +5,7 @@ const { RPCError } = require('../errors');
 const defaultOptions = {
     host: '0.0.0.0',
     port: 6356,
-    includeStack: true,
+    includeStack: true
 };
 
 class Server {
@@ -150,9 +150,9 @@ class Server {
                 error: {
                     code: data.rpcErrorID || -32000,
                     message: data.message,
-                    data: this.getErrorData(data),
+                    data: this.getErrorData(data)
                 },
-                id: data.rpcRequestID ? data.rpcRequestID : null,
+                id: data.rpcRequestID ? data.rpcRequestID : null
             };
         }
         return { jsonrpc: '2.0', result: data.result, id: data.id };
@@ -173,7 +173,7 @@ const handler = {
             return server.server.close.bind(server.server);
         }
         return undefined;
-    },
+    }
 };
 
 function createServer(options) {
