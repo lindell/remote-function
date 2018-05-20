@@ -1,6 +1,6 @@
 # Remote Function
 
-Remote Function is a library for making remote procedure calls in an intuitive way. Just declare functions on the server and call them from the client, that's it! If the function errors, the error will seamlessly be transferred to the calling client. It has no dependencies and works by utilizing _Proxies_ that was introduced with ES6.
+Remote Function is a library for making remote procedure calls in an intuitive way. Just declare functions on the server and call them from the client, that's it! If the function errors, the error will seamlessly be transferred to the calling client. This is done via [JSON RPC 2.0](http://www.jsonrpc.org/specification) which makes it possible to use with other clients. It has _no dependencies_ and works by utilizing [Proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) that was introduced with ES6.
 
 ## Install
 
