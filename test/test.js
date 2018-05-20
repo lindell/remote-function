@@ -6,13 +6,13 @@ const deepEqual = require('deep-equal');
 chai.use(chaiAsPromised);
 chai.should();
 
-const srpc = require('../src');
+const remoteFunction = require('../src');
 
 let client;
 let server;
 
 before(() => {
-    client = srpc.createClient({ timeout: 500 });
+    client = remoteFunction.createClient({ timeout: 500 });
 });
 
 describe('No server', () => {
@@ -20,7 +20,7 @@ describe('No server', () => {
         client.multiply(3, 4).should.rejectedWith('ECONNREFUSED'));
 
     it('Should start the server', () => {
-        server = srpc.createServer({ includeStack: false });
+        server = remoteFunction.createServer({ includeStack: false });
     });
 });
 

@@ -1,22 +1,21 @@
-# Smooth RPC
+# Remote Function
 
-Smooth RPC is a library for making remote procedure calls in an intuitive way. Just declare functions on the server element and call them from the client element, that's it. If the function errors, the error will seamlessly be transferred to the calling client. It has no dependencies and works by utilizing _Proxies_ that was introduced with ES6.
+Remote Function is a library for making remote procedure calls in an intuitive way. Just declare functions on the server and call them from the client, that's it! If the function errors, the error will seamlessly be transferred to the calling client. It has no dependencies and works by utilizing _Proxies_ that was introduced with ES6.
 
 ## Install
 
 ```
-npm install smooth-rpc
+npm install remote-function
 ```
 
-## Examples
+## Example
 
 #### Server
 
 Initiate a server, then just define your function on the server object.
 
 ```javascript
-const srpc = require('smooth-rpc');
-const server = srpc.createServer();
+const server = require('remote-function').createServer();
 
 server.divide = (arg1, arg2) => {
     if (arg2 === 0) {
@@ -28,26 +27,22 @@ server.divide = (arg1, arg2) => {
 
 #### Client
 
-Define where the server is located when creating a client. Then you can just call the function that is defined at the server and you get a promise that returns what the server function will return.
+Define where the server is located when creating a client. Then you can just call the function that is defined at the server and you get a promise that returns what the server function will return. If you are on _>=Node 8.0.0_, you can use it with `await` if you are within an `async` function.
 
 ```javascript
-const srcp = require('smooth-rpc');
-const remote = srcp.createClient({ host: '127.0.0.1' });
+const remote = require('remote-function').createClient({ host: '127.0.0.1' });
 
-remote
-    .divide(12, 3)
-    .then(console.log)
-    .catch(console.log);
+const result = await remote.divide(12, 3);
+console.log(result); // 4
 ```
 
-If you are on _>=Node 8.0.0_, you can use the call with `await` if you are within a `async` function.
-
+If an error is thrown on the server:
 ```javascript
 try {
-    let result = await remote.divide(12, 0);
-    console.log(result);
+    const result = await remote.divide(12, 0);
+    console.log(result); // Will not be reached
 } catch (error) {
-    console.log(error);
+    // Get the error thrown on the server, including stacktrace
 }
 ```
 
@@ -63,7 +58,8 @@ try {
 
 #### Client
 
-| Option | Default       | Description                        |
-| ------ | ------------- | ---------------------------------- |
-| `host` | `"127.0.0.1"` | The host that the server listen on |
-| `port` | `6356`        | The port that the server listen on |
+| Option    | Default       | Description                        |
+| --------- | ------------- | ---------------------------------- |
+| `host`    | `"127.0.0.1"` | The host that the server listen on |
+| `port`    | `6356`        | The port that the server listen on |
+| `timeout` | `0`           | The request timeout                |

@@ -1,5 +1,5 @@
 {
-    "name": "smooth-rpc",
+    "name": "remote-function",
     "version": "0.2.0",
     "description": "Make function calls remotely in an intuitive way.",
     "main": "src/index.js",
@@ -10,10 +10,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/lindell/smooth-rpc.git"
+        "url": "git+https://github.com/lindell/remote-function.git"
     },
     "author": "Johan Lindell",
-    "homepage": "https://github.com/lindell/smooth-rpc",
+    "homepage": "https://github.com/lindell/remote-function",
     "license": "MIT",
     "devDependencies": {
         "axios": "^0.17.1",
