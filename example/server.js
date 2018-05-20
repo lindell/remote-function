@@ -1,6 +1,4 @@
-const srpc = require('../src');
-
-const server = srpc.createServer();
+const server = require('../src').createServer();
 
 server.divide = (arg1, arg2) => {
     if (arg2 === 0) {
