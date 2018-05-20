@@ -14,4 +14,11 @@ class TimeoutError extends Error {
     }
 }
 
-module.exports = { RPCError, TimeoutError };
+class BadServerDataError extends Error {
+    constructor(message) {
+        super(message);
+        Error.captureStackTrace(this, RPCError);
+    }
+}
+
+module.exports = { RPCError, TimeoutError, BadServerDataError };

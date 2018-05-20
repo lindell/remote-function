@@ -2,6 +2,7 @@ const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const axios = require('axios');
 const deepEqual = require('deep-equal');
+const express = require('express');
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -11,8 +12,27 @@ const remoteFunction = require('../src');
 let client;
 let server;
 
+let expressApp1;
+let expressServer1;
+
+let expressApp2;
+let expressServer2;
+
 before(() => {
     client = remoteFunction.createClient({ timeout: 500 });
+
+    // Set up a random server to test requests against a bad endpoint
+    expressApp1 = express();
+    expressApp1.post('/', (req, res) => {
+        res.send('random return');
+    });
+    expressServer1 = expressApp1.listen(5555);
+
+    expressApp2 = express();
+    expressApp2.post('/', (req, res) => {
+        res.json({ test: 'test' });
+    });
+    expressServer2 = expressApp2.listen(5556);
 });
 
 describe('No server', () => {
@@ -164,6 +184,12 @@ describe('JSON RPC Server test', () => {
                     method: 'errorThrower',
                     params: [42, 23],
                     id: 4
+                },
+                {
+                    jsonrpc: '2.0',
+                    method: 'errorThrower',
+                    params: [42, 23],
+                    id: null
                 }
             ],
             [
@@ -208,6 +234,12 @@ describe('Promise use', () => {
             });
         return client.throwing().should.rejectedWith(Error);
     });
+
+    it('Works without options', () => {
+        const noOptionsClient = remoteFunction.createClient();
+        server.add = (a, b) => a + b;
+        return noOptionsClient.add(4, 6).should.eventually.equal(10);
+    });
 });
 
 describe('Errors', () => {
@@ -234,8 +266,22 @@ describe('Errors', () => {
             }
         );
     });
+
+    it('Should error with bad server data', () => {
+        const badRequestClient = remoteFunction.createClient({ port: 5555 });
+        return badRequestClient.test().should.eventually.rejectedWith('Could not parse');
+    });
+
+    it('Should error with incomplete server data', () => {
+        const badRequestClient = remoteFunction.createClient({ port: 5556 });
+        return badRequestClient
+            .test()
+            .should.eventually.rejectedWith('Data or Error is not present');
+    });
 });
 
 after(() => {
     server.close();
+    expressServer1.close();
+    expressServer2.close();
 });

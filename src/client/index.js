@@ -1,5 +1,5 @@
 const http = require('http');
-const { TimeoutError } = require('../errors');
+const { TimeoutError, BadServerDataError } = require('../errors');
 const { gererateID } = require('../util');
 
 const defaultOptions = {
@@ -34,8 +34,12 @@ class Client {
                 });
 
                 resp.on('end', () => {
-                    const parsedData = JSON.parse(data);
-                    resolve(this.finishRequest(parsedData));
+                    try {
+                        const parsedData = JSON.parse(data);
+                        resolve(this.finishRequest(parsedData));
+                    } catch (e) {
+                        reject(new BadServerDataError('Could not parse the response from the server'));
+                    }
                 });
             });
 
