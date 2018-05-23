@@ -286,6 +286,14 @@ describe('Other', () => {
         server.test().should.equal('test');
     });
 
+    it('Should error correctly when wrong parsed', (done) => {
+        testAPI(
+            'not json',
+            { jsonrpc: '2.0', error: { code: -32700, message: 'Parse error' }, id: null },
+            done
+        );
+    });
+
     it('Should be able to restart server', () => {
         server.closeServer();
         server = remoteFunction.createServer();
