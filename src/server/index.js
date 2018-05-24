@@ -130,9 +130,7 @@ class Server {
                 return;
             }
 
-            if (error[property] !== undefined) {
-                object[property] = error[property];
-            }
+            object[property] = error[property];
         });
 
         if (Object.keys(object).length === 0) {
