@@ -168,6 +168,7 @@ class Server {
 const handler = {
     set(server, name, handlerFunction) {
         server.regsiterHandler(name, handlerFunction);
+        return true;
     },
 
     get(server, name) {
