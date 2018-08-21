@@ -140,7 +140,7 @@ class Server {
         return object;
     }
 
-    // Convert the data to the format that will be sent backt to the client
+    // Convert the data to the format that will be sent back to the client
     createRPCObject(data) {
         if (data instanceof Error) {
             return {
@@ -156,7 +156,7 @@ class Server {
         return { jsonrpc: '2.0', result: data.result, id: data.id };
     }
 
-    regsiterHandler(name, handler) {
+    registerHandler(name, handler) {
         this.handlers[name] = handler;
     }
 
@@ -167,7 +167,7 @@ class Server {
 
 const handler = {
     set(server, name, handlerFunction) {
-        server.regsiterHandler(name, handlerFunction);
+        server.registerHandler(name, handlerFunction);
         return true;
     },
 
