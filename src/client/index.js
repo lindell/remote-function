@@ -13,7 +13,7 @@ const defaultOptions = {
 class Client {
     constructor(userOptions) {
         this.options = Object.assign({}, defaultOptions, userOptions || {});
-        this.options.headers = Object.assign({}, this.options.headers || {}, { 'Content-Type': 'application/json' });
+        this.options.headers = Object.assign({ 'Content-Type': 'application/json' }, this.options.headers || {});
         this.options.method = 'POST';
         if (this.options.timeout != null) {
             this.options.responseTimeout = this.options.timeout;
