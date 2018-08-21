@@ -60,8 +60,11 @@ try {
 
 #### Client
 
-| Option    | Default       | Description                        |
-| --------- | ------------- | ---------------------------------- |
-| `host`    | `"127.0.0.1"` | The host that the server listen on |
-| `port`    | `6356`        | The port that the server listen on |
-| `timeout` | `0`           | The request timeout                |
+| Option            | Default       | Description                         |
+| ----------------- | ------------- | ----------------------------------- |
+| `host`            | `"127.0.0.1"` | The host that the server listens on |
+| `port`            | `6356`        | The port that the server listens on |
+| `connectTimeout`  | `0`           | The socket connection timeout       |
+| `responseTimeout` | `0`           | The response wait timeout           |
+
+Client's constructor also supports options from [http.request()](https://nodejs.org/api/http.html#http_http_request_options_callback). For example, you can set `headers` to add extra headers to http request, or `auth` if you need Basic Authentication. You cannot change _http method_ or `Content-Type` header.

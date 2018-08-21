@@ -1,41 +1,38 @@
 const http = require('http');
 const { TimeoutError, BadServerDataError } = require('../errors');
-const { gererateID } = require('../util');
+const { generateID } = require('../util');
 
 const defaultOptions = {
     host: '127.0.0.1',
     port: 6356,
-    timeout: 0
+    path: '/',
+    connectTimeout: 0,
+    responseTimeout: 0
 };
 
 class Client {
     constructor(userOptions) {
         this.options = Object.assign({}, defaultOptions, userOptions || {});
+        this.options.headers = Object.assign({}, this.options.headers || {}, { 'Content-Type': 'application/json' });
+        this.options.method = 'POST';
+        if (this.options.timeout != null) {
+            this.options.responseTimeout = this.options.timeout;
+        }
+        this.options.timeout = this.options.connectTimeout || this.options.timeout || undefined;
     }
 
     send(name, params) {
-        const options = {
-            hostname: this.options.host,
-            port: this.options.port,
-            path: '/',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
-        const id = gererateID();
-
         return new Promise((resolve, reject) => {
-            const request = http.request(options, (resp) => {
-                let data = '';
+            const request = http.request(this.options, (resp) => {
+                const data = [];
 
                 resp.on('data', (chunk) => {
-                    data += chunk;
+                    data.push(chunk);
                 });
 
                 resp.on('end', () => {
                     try {
-                        const parsedData = JSON.parse(data);
+                        const parsedData = JSON.parse(data.join(''));
                         resolve(this.finishRequest(parsedData));
                     } catch (e) {
                         reject(new BadServerDataError('Could not parse the response from the server'));
@@ -43,17 +40,15 @@ class Client {
                 });
             });
 
-            request.on('error', (e) => {
-                reject(e);
-            });
+            request.on('error', reject);
 
-            if (this.options.timeout > 0) {
+            if (this.options.responseTimeout > 0) {
                 request.on('socket', (socket) => {
                     socket.on('connect', () => {
                         setTimeout(() => {
                             reject(new TimeoutError('Request timed out'));
                             request.abort();
-                        }, this.options.timeout);
+                        }, this.options.responseTimeout);
                     });
                 });
             }
@@ -62,7 +57,7 @@ class Client {
                 jsonrpc: '2.0',
                 method: name,
                 params,
-                id
+                id: generateID()
             }));
             request.end();
         });

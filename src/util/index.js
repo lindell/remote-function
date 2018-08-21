@@ -1,5 +1,5 @@
 const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
-function gererateID() {
+function generateID() {
     let str = '';
     for (let i = 0; i < 16; i += 1) {
         str += chars[Math.floor(Math.random() * chars.length)];
@@ -13,4 +13,4 @@ function validateRequest(data) {
     );
 }
 
-module.exports = { gererateID, validateRequest };
+module.exports = { generateID, validateRequest };
