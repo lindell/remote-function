@@ -64,9 +64,9 @@ class Client {
     }
 
     finishRequest(data) {
-        if (data.result) {
+        if (data && 'result' in data) {
             return data.result;
-        } else if (data.error) {
+        } else if (data && data.error) {
             const error = new Error(data.error.message);
             if (data.error.data) {
                 Object.assign(error, data.error.data);
