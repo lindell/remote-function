@@ -12,7 +12,6 @@ jobs:
     - stage: npm release
       if: tag IS present
       node_js: "10"
-      script: npm run convert
       deploy:
         provider: npm
         skip_cleanup: true
