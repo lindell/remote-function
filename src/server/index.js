@@ -1,4 +1,5 @@
 const http = require('http');
+const { promisify } = require('util')
 const { validateRequest } = require('../util');
 const { RPCError } = require('../errors');
 
@@ -31,25 +32,26 @@ class Server {
     }
 
     answerRequest(res) {
+        const end = promisify(res.end).bind(res);
         return (results) => {
             // If notification, don't return anything
             if (results === null) {
-                res.end();
+                return end();
             }
             if (Array.isArray(results)) {
                 const response = results
                     .filter(result => result != null)
                     .map(this.createRPCObject.bind(this));
 
-                res.end(JSON.stringify(response));
+                return end(JSON.stringify(response));
             }
-            res.end(JSON.stringify(this.createRPCObject(results)));
+            return end(JSON.stringify(this.createRPCObject(results)));
         };
     }
 
     answerError(res) {
         return (error) => {
-            res.end(JSON.stringify(this.createRPCObject(error)));
+            return promisify(res.end).call(res, JSON.stringify(this.createRPCObject(error)));
         };
     }
 
