@@ -1,6 +1,6 @@
 {
     "name": "remote-function",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Make function calls remotely in an intuitive way.",
     "main": "src/index.js",
     "scripts": {
