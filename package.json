@@ -7,7 +7,8 @@
         "test": "./node_modules/mocha/bin/mocha",
         "coverage": "node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- -- test/**/*",
         "coveralls": "node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-        "start": "node server.js"
+        "start": "node server.js",
+        "lint": "eslint"
     },
     "repository": {
         "type": "git",
@@ -22,12 +23,11 @@
         "chai-as-promised": "^7.1.1",
         "coveralls": "^3.1.0",
         "deep-equal": "^1.1.1",
-        "eslint": "^5.16.0",
-        "eslint-config-airbnb-base": "^12.1.0",
-        "eslint-plugin-import": "^2.22.1",
+        "eslint": "^7.25.0",
+        "eslint-config-airbnb-base": "^11.2.0",
+        "eslint-plugin-import": "^2.2.0",
         "express": "^4.17.1",
         "istanbul": "^1.1.0-alpha.1",
         "mocha": "^8.2.0"
-    },
-    "dependencies": {}
+    }
 }
